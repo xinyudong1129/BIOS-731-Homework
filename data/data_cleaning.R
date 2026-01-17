@@ -64,13 +64,7 @@ flag <- CGM_data_sorted %>%
 
 print(flag)
 
-#create new directory and store clean data under folder data_clean
-dir.create(here("data_clean"), showWarnings = FALSE)
-write.csv(
-  CGM_data_sorted,
-  file = here("data_clean", "CGMdata_clean.csv"),
-  row.names = FALSE
-)
+#store clean data under folder data
 
 write.csv(
   CGM_data_sorted,
