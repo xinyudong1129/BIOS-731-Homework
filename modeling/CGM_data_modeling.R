@@ -54,3 +54,11 @@ table(
   Truth      = CGM_data_clean$start_ind,
   Prediction = CGM_data_clean$pred_class
 )
+  
+#store predicted data results under folder modeling
+dir.create(here("modeling"), showWarnings = FALSE)
+write.csv(
+  CGM_data_clean,
+  file = here("modeling", "CGMdata_pred.csv"),
+  row.names = FALSE
+)
