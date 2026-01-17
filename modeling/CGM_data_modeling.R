@@ -62,3 +62,9 @@ write.csv(
   file = here("modeling", "CGMdata_pred.csv"),
   row.names = FALSE
 )
+
+write.csv(
+  CGM_data_clean,
+  file = here("data", "CGMdata_pred.csv"),
+  row.names = FALSE
+)
