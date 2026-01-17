@@ -71,3 +71,9 @@ write.csv(
   file = here("data_clean", "CGMdata_clean.csv"),
   row.names = FALSE
 )
+
+write.csv(
+  CGM_data_sorted,
+  file = here("data", "CGMdata_clean.csv"),
+  row.names = FALSE
+)
