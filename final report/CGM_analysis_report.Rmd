@@ -41,5 +41,127 @@ CGM_data <- CGM_data[, 1:3]
 
 ## Data Cleaning
 
-Now that we downloaded the continuous glucose monitoring data and filtered out the variables of interest, we need to fill in the missing time stamps first:
+Now that we downloaded the continuous glucose monitoring data and filtered out the variables of interest, we need to fill in the missing time stamps first: glucose level for all missing timestamps are set to be zero as an indication of unobserved data, and we create a new indicator variable *ind* to indicate whether the data is observed (value 1) or missing (value 0). 
+
+Another indicator variable *start_ind* serves as the parameter of interest, which indicate whether the data is the start of a missing interval (value 1) or not (value 0). The time gap between two lines of data within the same individual is enforces to be 5 (minutes), which serves as the criteria for whether we should "insert" a line of data between two observed readings or not. 
+
+```{r}
+if(!file.exists((here::here("data", "CGMdata_clean.csv")))){
+  source(here("data", "data_cleaning.R")) 
+}else{
+  readr::read_csv(here::here("data", "CGMdata_clean.csv"),
+  show_col_types = FALSE)
+}
+```
+
+## Data Modeling
+
+Let $Y_i$ denote the binary outcome for observation $i$, where
+\[
+Y_i =
+\begin{cases}
+1, & \text{if a start event occurs (}\texttt{start\_ind}=1\text{)}\\
+0, & \text{otherwise (}\texttt{start\_ind}=0\text{)}.
+\end{cases}
+\]
+Let $\mathbf{x}_i = (1, x_{i1}, x_{i2}, \dots, x_{ip})^\top$ be the vector of predictors for observation $i$, including an intercept term. In this analysis, all available feature variables are considered as predictors except \texttt{ind, x1, x2}, which are excluded from modeling.
+
+\subsection{Model specification}
+We model the conditional probability of a start event using a binary logistic regression:
+\[
+\pi_i \equiv \Pr(Y_i = 1 \mid \mathbf{x}_i),
+\]
+with the logit link function
+\[
+\log\left(\frac{\pi_i}{1-\pi_i}\right) = \mathbf{x}_i^\top \boldsymbol{\beta}
+= \beta_0 + \sum_{j=1}^{p} \beta_j x_{ij}.
+\]
+Equivalently, the predicted probability is
+\[
+\pi_i = \frac{\exp(\mathbf{x}_i^\top \boldsymbol{\beta})}{1+\exp(\mathbf{x}_i^\top \boldsymbol{\beta})}.
+\]
+
+\subsection{Estimation}
+Parameters $\boldsymbol{\beta} = (\beta_0, \beta_1, \dots, \beta_p)^\top$ are estimated by maximum likelihood. Under independence across observations, the likelihood is
+\[
+L(\boldsymbol{\beta})
+= \prod_{i=1}^{n} \pi_i^{\,Y_i}\,(1-\pi_i)^{\,1-Y_i},
+\]
+and the log-likelihood is
+\[
+\ell(\boldsymbol{\beta})
+= \sum_{i=1}^{n}\left[
+Y_i \log(\pi_i) + (1-Y_i)\log(1-\pi_i)
+\right].
+\]
+The maximum likelihood estimate $\widehat{\boldsymbol{\beta}}$ is obtained by numerically maximizing $\ell(\boldsymbol{\beta})$.
+
+
+\subsection{Train/validation evaluation}
+To assess generalization performance, we split the dataset into a training set and a validation set. Model parameters are estimated using only the training data, and predictions and performance metrics are computed on the held-out validation data. This procedure reduces optimistic bias compared to evaluating on the same data used for model fitting.
+
+\subsection{Prediction and classification}
+For each observation $i$, we compute the fitted probability
+\[
+\widehat{\pi}_i = \frac{\exp(\mathbf{x}_i^\top \widehat{\boldsymbol{\beta}})}{1+\exp(\mathbf{x}_i^\top \widehat{\boldsymbol{\beta}})}.
+\]
+To obtain a hard class label, we apply a decision threshold $\tau = 0.5 \in (0,1)$:
+\[
+\widehat{Y}_i =
+\begin{cases}
+1, & \text{if } \widehat{\pi}_i \ge \tau,\\
+0, & \text{if } \widehat{\pi}_i < \tau.
+\end{cases}
+\]
+Using the predicted labels $\widehat{Y}_i$ and true labels $Y_i$, we summarize performance with a confusion matrix and compute accuracy:
+\[
+\text{Accuracy} = \frac{1}{n}\sum_{i=1}^{n}\mathbb{I}\left(\widehat{Y}_i = Y_i\right),
+\]
+where $\mathbb{I}(\cdot)$ is the indicator function. 
+
+```{r}
+if(!file.exists((here::here("data", "CGMdata_pred.csv")))){
+  source(here("modeling", "CGM_data_modeling.R")) 
+}else{
+  readr::read_csv(here::here("data", "CGMdata_pred.csv"),
+  show_col_types = FALSE)
+}
+
+CGM_data_pred <- readr::read_csv(here::here("data", "CGMdata_pred.csv"),
+  show_col_types = FALSE)
+
+if (!exists("accuracy_val") || !exists("cm")) {
+  accuracy_val <- mean(CGM_data_pred$pred_class == CGM_data_pred$start_ind, na.rm = TRUE)
+  cm <- table(Truth = CGM_data_pred$start_ind, Prediction = CGM_data_pred$pred_class)
+}
+
+cat("\nValidation accuracy:", round(accuracy_val, 4), "\n\n")
+print(cm)
+```
+
+## Visualization
+
+We perform a visualization of the confusion matrix obtained in section **Modeling**. The first plot shows a confusion matrix by raw counts, and the second shows a row normalized confusion matrix.
+
+```{r}
+source(here("visualization", "CGM_data_visualization.R"))
+```
+
+```{r}
+knitr::include_graphics(
+  here("results", "confusion_matrix_counts.png")
+)
+```
+
+
+```{r}
+knitr::include_graphics(
+  here("results", "confusion_matrix_row_normalized.png")
+)
+```
+
+
+
+
+
 

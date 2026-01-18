@@ -24,7 +24,7 @@ matrix_count <- ggplot(cm_df, aes(x = Prediction, y = Truth, fill = n)) +
   scale_fill_gradient(low = "lightblue", high = "navy", name = "Count") +
   labs(
     title = "Confusion Matrix (Counts)",
-    subtitle = paste0("Threshold = ", threshold, ", Accuracy = ", round(accuracy, 3)),
+    subtitle = paste0("Threshold = ", 0.5, ", Accuracy = ", round(accuracy_val, 3)),
     x = "Predicted class",
     y = "True class"
   ) +
@@ -46,7 +46,7 @@ matrix_prop <- ggplot(cm_prop, aes(x = Prediction, y = Truth, fill = prop)) +
                       labels = percent, name = "Row %") +
   labs(
     title = "Confusion Matrix (Row-normalized)",
-    subtitle = paste0("Threshold = ", threshold, ", Accuracy = ", round(accuracy, 3)),
+    subtitle = paste0("Threshold = ", 0.5, ", Accuracy = ", round(accuracy_val, 3)),
     x = "Predicted class",
     y = "True class"
   ) +
