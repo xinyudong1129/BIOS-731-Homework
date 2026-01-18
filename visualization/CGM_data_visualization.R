@@ -53,10 +53,10 @@ matrix_prop <- ggplot(cm_prop, aes(x = Prediction, y = Truth, fill = prop)) +
   theme_minimal(base_size = 14)
 
 # create directories and store the images
-dir.create(here("results"), showWarnings = FALSE)
+#dir.create(here("results"), showWarnings = FALSE)
 ggsave(
   filename = here("results", "confusion_matrix_counts.png"),
-  plot     = p_count,
+  plot     = matrix_count,
   width    = 7,
   height   = 6,
   dpi      = 300
@@ -64,7 +64,7 @@ ggsave(
 
 ggsave(
   filename = here("results", "confusion_matrix_row_normalized.png"),
-  plot     = p_prop,
+  plot     = matrix_prop,
   width    = 7,
   height   = 6,
   dpi      = 300
