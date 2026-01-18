@@ -17,7 +17,7 @@ cm_df <- CGM_data_pred %>%
   count(Truth, Prediction, name = "n") %>%
   complete(Truth, Prediction, fill = list(n = 0))
 # plot 1: confusion matrix by count
-ggplot(cm_df, aes(x = Prediction, y = Truth, fill = n)) +
+matrix_count <- ggplot(cm_df, aes(x = Prediction, y = Truth, fill = n)) +
   geom_tile(color = "white", linewidth = 1) +
   geom_text(aes(label = n), size = 6, fontface = "bold") +
   scale_fill_gradient(low = "lightblue", high = "navy", name = "Count") +
@@ -37,7 +37,7 @@ cm_prop <- cm_df %>%
   mutate(prop = n / sum(n)) %>%
   ungroup()
 
-ggplot(cm_prop, aes(x = Prediction, y = Truth, fill = prop)) +
+matrix_prop <- ggplot(cm_prop, aes(x = Prediction, y = Truth, fill = prop)) +
   geom_tile(color = "white", linewidth = 1) +
   geom_text(aes(label = percent(prop, accuracy = 0.1)),
             size = 6, fontface = "bold") +
@@ -52,7 +52,23 @@ ggplot(cm_prop, aes(x = Prediction, y = Truth, fill = prop)) +
   coord_equal() +
   theme_minimal(base_size = 14)
 
+# create directories and store the images
+dir.create(here("results"), showWarnings = FALSE)
+ggsave(
+  filename = here("results", "confusion_matrix_counts.png"),
+  plot     = p_count,
+  width    = 7,
+  height   = 6,
+  dpi      = 300
+)
 
+ggsave(
+  filename = here("results", "confusion_matrix_row_normalized.png"),
+  plot     = p_prop,
+  width    = 7,
+  height   = 6,
+  dpi      = 300
+)
 
 
 

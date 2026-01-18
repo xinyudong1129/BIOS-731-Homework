@@ -2,7 +2,7 @@
 library(dplyr)
 library(here)
 # then we read in the clean data
-CGM_data_clean <- read.csv(here("data_clean", "CGMdata_clean.csv"))
+CGM_data_clean <- read.csv(here("data", "CGMdata_clean.csv"))
 
 # 1) further prepare the data for our binary logistic regression model
 
