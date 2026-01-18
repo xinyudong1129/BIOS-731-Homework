@@ -56,7 +56,7 @@ table(
 )
   
 #store predicted data results under folder data
-dir.create(here("modeling"), showWarnings = FALSE)
+#dir.create(here("modeling"), showWarnings = FALSE)
 
 write.csv(
   CGM_data_clean,
